@@ -1,0 +1,28 @@
+<App>
+
+	<JavaScript>
+		module.exports = {
+			test: false
+		};
+	</JavaScript>
+	<ClientPanel>
+		<Panel ux:Class="ScorePanel">
+			<Text ux:Name="Score" Alignment="Center" Value="1" FontSize="200" />
+		</Panel>
+
+		<Grid RowCount="1" ColumnCount="2">
+			<ScorePanel Color="Red" />
+			<ScorePanel Color="Blue" />
+		</Grid>
+		<Panel Layer="Overlay">
+			<Image File="Assets/arrow.png" Width="200" ux:Name="direction">
+				<WhileTrue Value="{test}">
+					<Rotate DegreesY="180" Duration=".5" />
+				</WhileTrue>
+			</Image>
+		</Panel>
+
+
+
+	</ClientPanel>
+</App>
