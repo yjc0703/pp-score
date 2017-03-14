@@ -1,27 +1,111 @@
 <App>
 
 	<JavaScript>
+
+		var Observable = require("FuseJS/Observable");
+
+		var maxScore = 7;
+		var maxSet = 3;
+		var useDuece = true;
+
+		var isDuece = false;
+		var complete = false;
+		var dueceScore = maxScore - 1;
+		var direction = Observable(false);
+
+		var away = createPlayer();
+		var home = createPlayer();
+
+		function increaseScore(args) {
+			if(!complete) {
+				args.data.score.value++;
+				process();
+			}
+		}
+
+		function process() {
+
+			if(home.score.value === maxScore || away.score.value === maxScore) {
+				complete = true;
+			}
+			calcServe();
+			//checkDuece();
+		}
+
+		function toggleServe() {
+			direction.value = !direction.value;
+		}
+
+		function isServeChange() {
+			return (home.score.value + away.score.value) % 2 == 0 || (useDuece && isDuece);
+		}
+
+		function checkDuece() {
+			if(home.score.value == dueceScore && away.score.value == dueceScore) {
+				isDuece = true; 
+				maxScore++;
+			}
+		}
+
+		function calcServe() {
+			if(isServeChange()) {
+				toggleServe();
+			}
+		}
+
+		function refresh() {
+			isDuece = false;
+			direction.value = false;
+			home = createPlayer();
+			away = createPlayer();
+		}
+
+		function createPlayer() {
+			return {
+				set: Observable(0),
+				score: Observable(0)
+			}
+		}
+
 		module.exports = {
-			test: false
+			direction: direction,
+			increaseScore: increaseScore,
+			home: home,
+			away: away,
+			refresh: refresh
 		};
 	</JavaScript>
 	<ClientPanel>
-		<Panel ux:Class="ScorePanel">
-			<Text ux:Name="Score" Alignment="Center" Value="1" FontSize="200" />
+		<Panel ux:Class="ScorePanel" Clicked="{increaseScore}" Padding="10">
+			<Text Alignment="Center" Value="{score}" FontSize="250" />
+		</Panel>
+
+		<Panel ux:Class="SetPanel">
+			<Text Alignment="Center" Value="{set}" />
 		</Panel>
 
 		<Grid RowCount="1" ColumnCount="2">
-			<ScorePanel Color="Red" />
-			<ScorePanel Color="Blue" />
+			<Select Data="{home}">
+				<ScorePanel>
+					<SetPanel Alignment="TopRight" />
+				</ScorePanel>
+			</Select>
+			<Select Data="{away}">
+				<ScorePanel>
+					<SetPanel Alignment="TopLeft" />
+				</ScorePanel>
+			</Select>
 		</Grid>
-		<Panel Layer="Overlay">
-			<Image File="Assets/arrow.png" Width="200" ux:Name="direction">
-				<WhileTrue Value="{test}">
-					<Rotate DegreesY="180" Duration=".5" />
-				</WhileTrue>
-			</Image>
-		</Panel>
 
+		<Image File="Assets/arrow.png" Width="200">
+			<WhileTrue Value="{direction}">
+				<Rotate DegreesZ="180" Duration=".2" />
+			</WhileTrue>
+		</Image>
+
+		<Button Alignment="BottomCenter" Margin="0,0,0,50" Clicked="{refresh}">
+			<Text>Refresh</Text>
+		</Button>
 
 
 	</ClientPanel>
